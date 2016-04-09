@@ -1,0 +1,8 @@
+E:\C#\Sonagi\Sonagi Server\bin\Debug\Sonagi Server.exe.config
+E:\C#\Sonagi\Sonagi Server\bin\Debug\Sonagi Server.exe
+E:\C#\Sonagi\Sonagi Server\bin\Debug\Sonagi Server.pdb
+E:\C#\Sonagi\Sonagi Server\obj\Debug\Sonagi Server.csprojResolveAssemblyReference.cache
+E:\C#\Sonagi\Sonagi Server\obj\Debug\Sonagi Server.exe
+E:\C#\Sonagi\Sonagi Server\obj\Debug\Sonagi Server.pdb
+E:\C#\Sonagi\Sonagi Server\bin\Debug\Network.dll
+E:\C#\Sonagi\Sonagi Server\bin\Debug\Network.pdb

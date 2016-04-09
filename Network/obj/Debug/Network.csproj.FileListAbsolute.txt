@@ -1,0 +1,4 @@
+E:\C#\Sonagi\Network\bin\Debug\Network.dll
+E:\C#\Sonagi\Network\bin\Debug\Network.pdb
+E:\C#\Sonagi\Network\obj\Debug\Network.dll
+E:\C#\Sonagi\Network\obj\Debug\Network.pdb
