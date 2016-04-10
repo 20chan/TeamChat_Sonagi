@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DEBUG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,8 @@ using System.Net;
 using System.Net.Sockets;
 using Network;
 
+
+// 하경이 아이디 hakyongch
 namespace Sonagi_Server
 {
     public class Network // For Server
@@ -58,7 +61,19 @@ namespace Sonagi_Server
                     switch (d.Type)
                     {
                         case DataType.NONE:
-                            Console.WriteLine(cli.IP.ToString() + "님이 접속하셨습니다.");
+                            Console.WriteLine(cli.IP.ToString() + "(" + d.Info.NickName + ")" + "님이 접속하셨습니다.");
+#if DEBUG
+                            Console.WriteLine(cli.buffer.Length);
+#endif
+                            Data _d = new Data(DataType.NONE, cli.IP, new ClientInfo(cli.IP, d.Info.NickName));
+                            SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
+
+                            Send(cli, _d);
+                            foreach(Client c in clients)
+                            {
+                                Data data = new Data(DataType.INFO, d.Info.NickName + "님이 접속하셨습니다.", new ClientInfo("", ""));
+                                Send(c, data);
+                            }
                             break;
                         case DataType.STRING:
                             Console.WriteLine(cli.IP.ToString() + " : " + d.InnerData.ToString());
@@ -93,10 +108,16 @@ namespace Sonagi_Server
             {
                 try
                 {
-                    Console.WriteLine(cli.IP.ToString() + "님이 접속을 종료하셨습니다.");
+                    Console.WriteLine(cli.IP.ToString() + "(" + cli.NickName + ")" + "님이 접속을 종료하셨습니다.");
                     //RemoveEvent(so);
                     clients.Remove(cli);
                     cli.sock.Close();
+
+                    foreach (Client c in clients)
+                    {
+                        Data data = new Data(DataType.INFO, cli.NickName + "님이 접속을 종료하셨습니다.", new ClientInfo("", ""));
+                        Send(c, data);
+                    }
                 }
                 catch { }
             }
@@ -105,6 +126,24 @@ namespace Sonagi_Server
         private void Args_Completed(object sender, SocketAsyncEventArgs e)
         {
             
+        }
+
+        void Send(Client cli, Data _d)
+        {
+            SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
+
+            byte[] _data = new byte[4096];
+            byte[] serialized = _d.Serialize();
+
+            for (int i = 0; i < 4096; i++)
+                _data[i] = 0;
+            for (int i = 0; i < serialized.Length; i++)
+                _data[i] = serialized[i];
+
+            _args.SetBuffer(_data, 0, 4096); // 여기서 버그 생김 계쏙.. 첫번째 클라는 보내지는데 그담부턴 에러 작렬.
+            _args.Completed += Args_Completed;
+            _args.UserToken = cli;
+            cli.sock.SendAsync(_args);
         }
     }
 }

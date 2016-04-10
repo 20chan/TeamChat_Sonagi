@@ -1,7 +1,6 @@
 E:\C#\Sonagi\Sonagi\bin\Debug\Sonagi.exe.config
 E:\C#\Sonagi\Sonagi\bin\Debug\Sonagi.exe
 E:\C#\Sonagi\Sonagi\bin\Debug\Sonagi.pdb
-E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi Client.csprojResolveAssemblyReference.cache
 E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi.Properties.Resources.resources
 E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi Client.csproj.GenerateResource.Cache
 E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi.exe
@@ -9,3 +8,4 @@ E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi.pdb
 E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi.Form1.resources
 E:\C#\Sonagi\Sonagi\bin\Debug\Network.dll
 E:\C#\Sonagi\Sonagi\bin\Debug\Network.pdb
+E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi Client.csprojResolveAssemblyReference.cache

@@ -4,10 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sonagi
+namespace Network
 {
+    [Serializable]
     public class ClientInfo
     {
+        public ClientInfo(string ip, string name)
+        {
+            this.IP = ip;
+            this.NickName = name;
+        }
+
+        public string IP;
+        
         private string nickName;
         public string NickName
         {
@@ -23,5 +32,6 @@ namespace Sonagi
                 nickName = value;
             }
         }
+        
     }
 }

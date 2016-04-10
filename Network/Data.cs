@@ -11,7 +11,7 @@ namespace Network
 {
     public enum DataType
     {
-        NONE, STRING, IMAGE, FILE
+        NONE, INFO, STRING, IMAGE, FILE
     }
 
     [Serializable]
@@ -19,9 +19,11 @@ namespace Network
     {
         public DataType Type;
         public object InnerData;
+        public ClientInfo Info;
 
-        public Data(DataType t, object d)
+        public Data(DataType t, object d, ClientInfo info)
         {
+            this.Info = info;
             this.Type = t; this.InnerData = d;
         }
 
