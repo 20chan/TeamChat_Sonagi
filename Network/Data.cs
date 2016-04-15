@@ -35,7 +35,7 @@ namespace Network
 
             return ms.ToArray();
         }
-
+        
         public static Data Deserialize(byte[] data)
         {
             BinaryFormatter formatter = new BinaryFormatter();

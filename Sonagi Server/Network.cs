@@ -46,80 +46,88 @@ namespace Sonagi_Server
         }
         void Recevie_Callback(IAsyncResult iar)
         {
-            Client cli = (Client)iar.AsyncState;
-            int rev = 0;
-            try
+            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Receive), 1);
+            t.Start(iar);
+        }
+
+        private static object lockObject = "";
+        private void Receive(object iar)
+        {
+            lock(lockObject)
             {
-                rev = cli.sock.EndReceive(iar);
-            }
-            catch { }
-            if (rev != 0)
-            {
+                Client cli = (Client)((IAsyncResult)iar).AsyncState;
+                int rev = 0;
                 try
                 {
-                    Data d = Data.Deserialize(cli.buffer);
-                    switch (d.Type)
-                    {
-                        case DataType.NONE:
-                            Console.WriteLine(cli.IP.ToString() + "(" + d.Info.NickName + ")" + "님이 접속하셨습니다.");
-#if DEBUG
-                            Console.WriteLine(cli.buffer.Length);
-#endif
-                            Data _d = new Data(DataType.NONE, cli.IP, new ClientInfo(cli.IP, d.Info.NickName));
-                            SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
-
-                            Send(cli, _d);
-                            foreach(Client c in clients)
-                            {
-                                Data data = new Data(DataType.INFO, d.Info.NickName + "님이 접속하셨습니다.", new ClientInfo("", ""));
-                                Send(c, data);
-                            }
-                            break;
-                        case DataType.STRING:
-                            Console.WriteLine(cli.IP.ToString() + " : " + d.InnerData.ToString());
-                            foreach (Client c in clients)
-                            {
-                                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-                                args.SetBuffer(cli.buffer, 0, 4096);
-                                args.Completed += Args_Completed;
-                                args.UserToken = c;
-                                c.sock.SendAsync(args);
-                            }
-                            break;
-
-                    }
+                    rev = cli.sock.EndReceive(((IAsyncResult)iar));
                 }
-                catch(Exception ex)
+                catch { }
+                if (rev != 0)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine("개체 " + ex.Source + " 에서, 메서드 " + ex.TargetSite + "에서");
-                }
-                finally
-                {
-                    cli.buffer = new byte[4096];
                     try
                     {
-                        cli.sock.BeginReceive(cli.buffer, 0, cli.buffer.Length, SocketFlags.None, new AsyncCallback(Recevie_Callback), cli);
+                        Data d = Data.Deserialize(cli.buffer);
+                        switch (d.Type)
+                        {
+                            case DataType.NONE:
+                                Console.WriteLine(cli.IP.ToString() + "(" + d.Info.NickName + ")" + "님이 접속하셨습니다.");
+                                Data _d = new Data(DataType.NONE, cli.IP, new ClientInfo(cli.IP, d.Info.NickName));
+                                SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
+
+                                Send(cli, _d);
+                                foreach (Client c in clients)
+                                {
+                                    Data data = new Data(DataType.INFO, d.Info.NickName + "님이 접속하셨습니다.", new ClientInfo("", ""));
+                                    Send(c, data);
+                                }
+                                break;
+                            case DataType.STRING:
+                                Console.WriteLine(cli.IP.ToString() + "(" + d.Info.NickName + ")" + " : " + d.InnerData.ToString());
+                                foreach (Client c in clients)
+                                {
+                                    SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                                    args.SetBuffer(cli.buffer, 0, 1024);
+                                    args.Completed += Args_Completed;
+                                    args.UserToken = c;
+                                    c.sock.SendAsync(args);
+                                }
+                                break;
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine("개체 " + ex.Source + " 에서, 메서드 " + ex.TargetSite + "에서");
+                    }
+                    finally
+                    {
+                        cli.buffer = new byte[1024];
+                        try
+                        {
+                            cli.sock.BeginReceive(cli.buffer, 0, cli.buffer.Length, SocketFlags.None, new AsyncCallback(Recevie_Callback), cli);
+                        }
+                        catch { }
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        Console.WriteLine(cli.IP.ToString() + "(" + cli.NickName + ")" + "님이 접속을 종료하셨습니다.");
+                        //RemoveEvent(so);
+                        clients.Remove(cli);
+                        cli.sock.Close();
+
+                        foreach (Client c in clients)
+                        {
+                            Data data = new Data(DataType.INFO, cli.NickName + "님이 접속을 종료하셨습니다.", new ClientInfo("", ""));
+                            Send(c, data);
+                        }
                     }
                     catch { }
                 }
-            }
-            else
-            {
-                try
-                {
-                    Console.WriteLine(cli.IP.ToString() + "(" + cli.NickName + ")" + "님이 접속을 종료하셨습니다.");
-                    //RemoveEvent(so);
-                    clients.Remove(cli);
-                    cli.sock.Close();
 
-                    foreach (Client c in clients)
-                    {
-                        Data data = new Data(DataType.INFO, cli.NickName + "님이 접속을 종료하셨습니다.", new ClientInfo("", ""));
-                        Send(c, data);
-                    }
-                }
-                catch { }
             }
         }
 
@@ -132,15 +140,15 @@ namespace Sonagi_Server
         {
             SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
 
-            byte[] _data = new byte[4096];
+            byte[] _data = new byte[1024];
             byte[] serialized = _d.Serialize();
 
-            for (int i = 0; i < 4096; i++)
+            for (int i = 0; i < 1024; i++)
                 _data[i] = 0;
             for (int i = 0; i < serialized.Length; i++)
                 _data[i] = serialized[i];
 
-            _args.SetBuffer(_data, 0, 4096); // 여기서 버그 생김 계쏙.. 첫번째 클라는 보내지는데 그담부턴 에러 작렬.
+            _args.SetBuffer(_data, 0, 1024); // 여기서 버그 생김 계쏙.. 첫번째 클라는 보내지는데 그담부턴 에러 작렬.
             _args.Completed += Args_Completed;
             _args.UserToken = cli;
             cli.sock.SendAsync(_args);

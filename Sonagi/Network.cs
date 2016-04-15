@@ -50,17 +50,17 @@ namespace Sonagi
             {
                 Data d = new Data(DataType.NONE, "", new ClientInfo(myIP, myNick));
 
-                byte[] _data = new byte[4096];
+                byte[] _data = new byte[1024];
                 byte[] serialized = d.Serialize();
 
-                for (int i = 0; i < 4096; i++)
+                for (int i = 0; i < 1024; i++)
                     _data[i] = 0;
                 for (int i = 0; i < serialized.Length; i++)
                     _data[i] = serialized[i];
                 
                 SocketAsyncEventArgs _receiveArgs = new SocketAsyncEventArgs();
                 _receiveArgs.UserToken = d;
-                _receiveArgs.SetBuffer(_data, 0, 4096);
+                _receiveArgs.SetBuffer(_data, 0, 1024);
                 _receiveArgs.Completed += _receiveArgs_Completed;
                 sock.ReceiveAsync(_receiveArgs);
             }
@@ -72,23 +72,33 @@ namespace Sonagi
 
         private void _receiveArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            try
+            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Receive), 1);
+            t.Start(e);
+        }
+
+        private static object lockObject = "";
+        private void Receive(object e)
+        {
+            lock (lockObject)
             {
-                Data d = Data.Deserialize(e.Buffer);
-                if (d.Type == DataType.NONE)
+                try
                 {
-                    myIP = d.InnerData.ToString();
+                    Data d = Data.Deserialize(((SocketAsyncEventArgs)e).Buffer);
+                    if (d.Type == DataType.NONE)
+                    {
+                        myIP = d.InnerData.ToString();
+                    }
+                    else if (GetMessage != null)
+                        GetMessage(d);
                 }
-                else if (GetMessage != null)
-                    GetMessage(d);
-            }
-            catch(Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                sock.ReceiveAsync(e);
+                catch (Exception ex)
+                {
+                    System.Windows.Forms.MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    sock.ReceiveAsync(((SocketAsyncEventArgs)e));
+                }
             }
         }
 
@@ -103,10 +113,10 @@ namespace Sonagi
                     sock.Send(byte_buffer, SocketFlags.None); //동기
                     */
                     /*
-                    byte[] _data = new byte[4096];
+                    byte[] _data = new byte[1024];
 
 
-                    for (int i = 0; i < 4096; i++)
+                    for (int i = 0; i < 1024; i++)
                         _data[i] = 0;
                     for (int i = 0; i < serialized.Length; i++)
                         _data[i] = serialized[i];
@@ -117,7 +127,7 @@ namespace Sonagi
                     byte[] serialized = data.Serialize();
                     SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                     args.SetBuffer(serialized, 0, serialized.Length); // 기존의 방식
-                                                                      //args.SetBuffer(_data, 0, 4096);
+                                                                      //args.SetBuffer(_data, 0, 1024);
                     args.Completed += Args_Completed;
                     //args.UserToken = this;
                     if (myIP == null)

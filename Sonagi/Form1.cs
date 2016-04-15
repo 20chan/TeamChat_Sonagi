@@ -26,7 +26,7 @@ namespace Sonagi
             //n.GetMessage += N_GetMessage;
             //n.Connect();
 
-            string name = "GUEST" + new Random().Next(0, 1000);
+            string name = "GUEST" + new Random().Next(0, 100);
             Network.myNick = name;
             textBox5.Text = name;
         }
@@ -49,7 +49,8 @@ namespace Sonagi
         {
             if (isEnable)
             {
-                Data d = new Data(DataType.STRING, textBox1.Text, new ClientInfo(Network.myIP, ""));
+                if (textBox1.Text.Length >= 250) textBox1.Text = textBox1.Text.Substring(0, 250);
+                Data d = new Data(DataType.STRING, textBox1.Text, new ClientInfo(Network.myIP, Network.myNick));
                 n.Send(d);
                 textBox1.Text = "";
                 isEnable = false;

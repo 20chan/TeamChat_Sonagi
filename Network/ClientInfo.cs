@@ -28,8 +28,9 @@ namespace Network
             set
             {
                 if (value.Length >= 20)
-                    throw new Exception("닉네임이 너무 길다");
-                nickName = value;
+                    nickName = value.Substring(0, 19);
+                else
+                    nickName = value;
             }
         }
         

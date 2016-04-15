@@ -9,3 +9,4 @@ E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi.Form1.resources
 E:\C#\Sonagi\Sonagi\bin\Debug\Network.dll
 E:\C#\Sonagi\Sonagi\bin\Debug\Network.pdb
 E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi Client.csprojResolveAssemblyReference.cache
+E:\C#\Sonagi\Sonagi\obj\Debug\Sonagi.ChatRoom.resources
