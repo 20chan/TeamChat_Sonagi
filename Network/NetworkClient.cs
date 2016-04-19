@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Net;
-using Network;
+using System.Net.Sockets;
 
-namespace Sonagi
+namespace Network
 {
     public delegate void msgProc(Data d);
-    public class Network // For Client
+    public class NetworkClient // For Client
     {
         public static string MYObEJCT = "";
         public event msgProc GetMessage;
@@ -19,7 +19,7 @@ namespace Sonagi
         public string serverIP;
         Socket sock;
         //Socket serv;
-        public Network(string ip, int port)
+        public NetworkClient(string ip, int port)
         {
             this.serverIP = ip;
             this.port = port;
@@ -34,7 +34,7 @@ namespace Sonagi
                 _args.RemoteEndPoint = new IPEndPoint(IPAddress.Parse(serverIP), port);
                 _args.Completed += _args_Completed;
                 sock.ConnectAsync(_args);
-                Send((new Data( DataType.NONE, null, new ClientInfo(myIP, myNick))));
+                Send((new Data(DataType.NONE, null, new ClientInfo(myIP, myNick))));
             }
             catch (Exception ex)
             {
@@ -57,7 +57,7 @@ namespace Sonagi
                     _data[i] = 0;
                 for (int i = 0; i < serialized.Length; i++)
                     _data[i] = serialized[i];
-                
+
                 SocketAsyncEventArgs _receiveArgs = new SocketAsyncEventArgs();
                 _receiveArgs.UserToken = d;
                 _receiveArgs.SetBuffer(_data, 0, 1024);
@@ -106,7 +106,7 @@ namespace Sonagi
         {
             try
             {
-                lock(MYObEJCT)
+                lock (MYObEJCT)
                 {
                     /*
                     byte[] byte_buffer = data.Serialize();
@@ -134,9 +134,9 @@ namespace Sonagi
                         System.Threading.Thread.Sleep(100);
                     sock.SendAsync(args);
                 }
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 System.Windows.Forms.MessageBox.Show(ex.Message);
             }

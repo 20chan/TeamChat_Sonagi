@@ -1,23 +1,20 @@
-﻿//#define DEBUG
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net;
 using System.Net.Sockets;
-using Network;
+using System.Net;
+ 
 
-
-// 하경이 아이디 hakyongch
-namespace Sonagi_Server
+namespace Network
 {
-    public class Network // For Server
+    public class NetworkServer // For Server
     {
         private List<Client> clients = new List<Client>();
         Socket sock;
         int port;
-        public Network(int port)
+        public NetworkServer(int port)
         {
             this.port = port;
             sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -53,7 +50,7 @@ namespace Sonagi_Server
         private static object lockObject = "";
         private void Receive(object iar)
         {
-            lock(lockObject)
+            lock (lockObject)
             {
                 Client cli = (Client)((IAsyncResult)iar).AsyncState;
                 int rev = 0;
@@ -133,7 +130,28 @@ namespace Sonagi_Server
 
         private void Args_Completed(object sender, SocketAsyncEventArgs e)
         {
-            
+
+        }
+
+        public void SendAll(Data _d)
+        {
+            SocketAsyncEventArgs _args = new SocketAsyncEventArgs();
+
+            byte[] _data = new byte[1024];
+            byte[] serialized = _d.Serialize();
+
+            for (int i = 0; i < 1024; i++)
+                _data[i] = 0;
+            for (int i = 0; i < serialized.Length; i++)
+                _data[i] = serialized[i];
+
+            _args.SetBuffer(_data, 0, 1024); // 여기서 버그 생김.. 첫번째 클라는 보내지는데 그담부턴 에러 작렬.
+            _args.Completed += Args_Completed;
+            foreach (Client cli in clients)
+            {
+                _args.UserToken = cli;
+                cli.sock.SendAsync(_args);
+            }
         }
 
         void Send(Client cli, Data _d)

@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
-using System.Net;
 
-namespace Sonagi_Server
+namespace Network
 {
     public class Client
     {

@@ -13,7 +13,7 @@ namespace Sonagi
 {
     public partial class Form1 : Form
     {
-        Network n;
+        NetworkClient n;
         public Form1()
         {
             InitializeComponent();
@@ -27,7 +27,7 @@ namespace Sonagi
             //n.Connect();
 
             string name = "GUEST" + new Random().Next(0, 100);
-            Network.myNick = name;
+            NetworkClient.myNick = name;
             textBox5.Text = name;
         }
 
@@ -50,7 +50,7 @@ namespace Sonagi
             if (isEnable)
             {
                 if (textBox1.Text.Length >= 250) textBox1.Text = textBox1.Text.Substring(0, 250);
-                Data d = new Data(DataType.STRING, textBox1.Text, new ClientInfo(Network.myIP, Network.myNick));
+                Data d = new Data(DataType.STRING, textBox1.Text, new ClientInfo(NetworkClient.myIP, NetworkClient.myNick));
                 n.Send(d);
                 textBox1.Text = "";
                 isEnable = false;
@@ -69,8 +69,8 @@ namespace Sonagi
 
         private void button2_Click(object sender, EventArgs e)
         {
-            n = new Network(this.textBox3.Text, Convert.ToInt32(textBox4.Text));
-            Network.myNick = this.textBox5.Text;
+            n = new NetworkClient(this.textBox3.Text, Convert.ToInt32(textBox4.Text));
+            NetworkClient.myNick = this.textBox5.Text;
             n.GetMessage += N_GetMessage;
             n.Connect();
         }
